@@ -4,9 +4,9 @@ function ED_valuation()
 
 global wRect w XCENTER rects mids COLORS KEYS 
 
-prompt={'SUBJECT ID' 'Session' 'MRI' 'Behaviors'};
-defAns={'4444' '1' '1' '0'};
-
+prompt={'SUBJECT ID' 'Session'};% 
+defAns={'4444' '1'};% '0'};
+de={'fMRI? (1 = Y, 0 = N)'};
 
 
 answer=inputdlg(prompt,'Please input subject info',1,defAns);
