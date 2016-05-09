@@ -19,7 +19,7 @@ ID=str2double(answer{1});
 SESS=str2double(answer{2});
 MRI = str2double(answer{3});
 
-binge=strdouble(negbehav{1});
+binge=str2double(negbehav{1});
 sick=str2double(negbehav{2});
 lax=str2double(negbehav{3});
 dietpills=str2double(negbehav{4});
@@ -86,6 +86,10 @@ if (exercise==1);
     exercisebehav = importdata('exercise.txt');
 end
 
+system('copy binge.txt+sick.txt+lax.txt+dietpills.txt+fast.txt.exercise.txt eds.txt');
+
+eds=importdata('eds.txt');
+
 
 %%
 commandwindow;
@@ -130,7 +134,7 @@ end
 %you can set the font sizes and styles here
 Screen('TextFont', w, 'Arial');
 %Screen('TextStyle', w, 1);
-Screen('TextSize',w,35);
+Screen('TextSize',w,25);
 
 %% Dat Grid
 [rects,mids] = DrawRectsGrid();
