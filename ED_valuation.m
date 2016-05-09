@@ -4,16 +4,27 @@ function ED_valuation()
 
 global wRect w XCENTER rects mids COLORS KEYS 
 
-prompt={'SUBJECT ID' 'Session' 'MRI' 'Behaviors'};
-defAns={'4444' '1' '1' '0'};
+prompt={'SUBJECT ID' 'Session' 'MRI (1 = Y, 0 = N)'};
+defAns={'4444' '1' '0'};
 
+prompt2={'Binges' 'Sick' 'Laxatives/diruretics' 'Diet pills' 'Fasting' 'Exercise'};
+behaviors={'0' '0' '0' '0' '0' '0'};
 
 
 answer=inputdlg(prompt,'Please input subject info',1,defAns);
 
+negbehav= inputdlg(prompt2,'Please input behaviors',1,behaviors);
+
 ID=str2double(answer{1});
 SESS=str2double(answer{2});
-%fmri = str2double(answer{2});
+MRI = str2double(answer{3});
+
+binge=strdouble(negbehav{1});
+sick=str2double(negbehav{2});
+lax=str2double(negbehav{3});
+dietpills=str2double(negbehav{4});
+fast=str2double(negbehav{5});
+exercise=str2double(negbehav{6});
 
 COLORS = struct;
 COLORS.BLACK = [0 0 0];
@@ -49,8 +60,31 @@ outputdir = [mfilesdir '/Results'];
 
 %Load in sentence strings
 scenarios = importdata('scenarios.txt');
-eds = importdata('ed_behav.txt');
 neutrals = importdata('neutral_behav.txt');
+
+if (binge==1);
+    bingebehav = importdata('binge.txt');
+end
+    
+if (sick==1);
+    sickbehav = importdata('sick.txt');
+end
+
+if (lax==1);
+    laxbehav = importdata('lax.txt');
+end
+
+if (dietpills==1);
+    dietpillbehav = importdata('dietpills.txt');
+end
+
+if (fast==1);
+    fastbehav = importdata('fast.txt');
+end
+
+if (exercise==1);
+    exercisebehav = importdata('exercise.txt');
+end
 
 
 %%
@@ -100,7 +134,7 @@ Screen('TextSize',w,35);
 
 %% Dat Grid
 [rects,mids] = DrawRectsGrid();
-verbage = 'How much do you want to:';
+verbage = 'How much do you want to...';
 verbage2 = 'Which do you want to do more?';
 
 %% Intro
