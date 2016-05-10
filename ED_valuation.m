@@ -29,6 +29,7 @@ for i = 1:size(a,1)
     end
 end
 
+shufflededs=Shuffle(1:length(eds));
 
 COLORS = struct;
 COLORS.BLACK = [0 0 0];
@@ -182,6 +183,10 @@ for block = 1:num_blocks
         Screen('Flip',w);
         WaitSecs(2);
 
+        DrawFormattedText(w,'+','center','center',COLORS.WHITE);
+        Screen('Flip',w);
+        WaitSecs(2);
+        
         %Probe ED behavior
         drawRatings([],w);
         DrawFormattedText(w,verbage,'center','center',COLORS.WHITE);
