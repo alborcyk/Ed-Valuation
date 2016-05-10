@@ -7,7 +7,7 @@ global wRect w XCENTER rects mids COLORS KEYS
 prompt={'SUBJECT ID' 'Session' 'MRI (1 = Y, 0 = N)'};
 defAns={'4444' '1' '0'};
 
-textfileNames = {'Binge.txt','Sick.txt','Exercise.txt'}
+textfileNames = {'Binge.txt','Sick.txt', 'Lax.txt', 'Dietpills.txt', 'Fast.txt', 'Exercise.txt'}
 prompt2={'Binges' 'Sick' 'Laxatives/diruretics' 'Diet pills' 'Fasting' 'Exercise'};
 behaviors={'0' '0' '0' '0' '0' '0'};
 
@@ -22,14 +22,13 @@ MRI = str2double(answer{3});
 
 a=logical(str2double(negbehav));
 
-allBehaviors = {};
+eds = {};
 for i = 1:size(a,1)
     if (a(i))
-        allBehaviors = [allBehaviors; importdata(textfileNames{i})];
+        eds = [eds; importdata(textfileNames{i})];
     end
 end
 
-prompt2(a);
 
 COLORS = struct;
 COLORS.BLACK = [0 0 0];
