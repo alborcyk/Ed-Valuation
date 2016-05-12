@@ -1,332 +1,362 @@
 function ED_valuation()
-% Rate all images, choose top X picsn
-% fMRI commented out.
+    % Rate all images, choose top X picsn
+    % fMRI commented out.
 
-global wRect w XCENTER rects mids COLORS KEYS 
+    global wRect w XCENTER rects mids COLORS KEYS joystickCenter
 
-prompt={'SUBJECT ID' 'Session' 'MRI (1 = Y, 0 = N)'};
-defAns={'4444' '1' '0'};
+    prompt={'SUBJECT ID' 'Session' 'MRI (1 = Y, 0 = N)'};
+    defAns={'4444' '1' '0'};
 
-textfileNames = {'Binge.txt','Sick.txt', 'Lax.txt', 'Dietpills.txt', 'Fast.txt', 'Exercise.txt'}
-prompt2={'Binges' 'Sick' 'Laxatives/diruretics' 'Diet pills' 'Fasting' 'Exercise'};
-behaviors={'0' '0' '0' '0' '0' '0'};
+    textfileNames = {'Binge.txt','Sick.txt','Lax.txt', 'Dietpills.txt', 'Fast.txt', 'Exercise.txt'}
+    prompt2={'Binges' 'Sick' 'Laxatives/diruretics' 'Diet pills' 'Fasting' 'Exercise'};
+    behaviors={'0' '0' '0' '0' '0' '0'};
 
 
-answer=inputdlg(prompt,'Please input subject info',1,defAns);
+    answer=inputdlg(prompt,'Please input subject info',1,defAns);
 
-negbehav= inputdlg(prompt2,'Please input behaviors',1,behaviors);
+    negbehav= inputdlg(prompt2,'Please input behaviors',1,behaviors);
 
-ID=str2double(answer{1});
-SESS=str2double(answer{2});
-MRI = str2double(answer{3});
+    ID=str2double(answer{1});
+    SESS=str2double(answer{2});
+    MRI = str2double(answer{3});
 
-a=logical(str2double(negbehav));
+    a=logical(str2double(negbehav));
 
-eds = {};
-for i = 1:size(a,1)
-    if (a(i))
-        eds = [eds; importdata(textfileNames{i})];
+    eds = {};
+    for i = 1:size(a,1)
+        if (a(i))
+            eds = [eds; importdata(textfileNames{i})];
+        end
     end
-end
 
-shufflededs=Shuffle(1:length(eds));
-
-COLORS = struct;
-COLORS.BLACK = [0 0 0];
-COLORS.WHITE = [255 255 255];
-COLORS.RED = [255 0 0];
-COLORS.BLUE = [0 0 255];
-COLORS.GREEN = [0 255 0];
-COLORS.YELLOW = [255 255 0];
-COLORS.rect = COLORS.GREEN;
-
-KbName('UnifyKeyNames');
-
-KEYS = struct;
-% KEYS.LEFT=KbName('leftarrow');
-% KEYS.RIGHT=KbName('rightarrow');
-KEYS.ONE= KbName('1!');
-KEYS.TWO= KbName('2@');
-KEYS.THREE= KbName('3#');
-KEYS.FOUR= KbName('4$');
-KEYS.FIVE= KbName('5%');
-KEYS.SIX= KbName('6^');
-KEYS.SEVEN= KbName('7&');
-KEYS.EIGHT= KbName('8*');
-KEYS.NINE= KbName('9(');
-% KEYS.TEN= KbName('0)');
-rangetest = cell2mat(struct2cell(KEYS));
-KEYS.all = min(rangetest):max(rangetest);
-% KEYS.trigger = KbName('''"');
-
-%%
-[mfilesdir,~,~] = fileparts(which('ED_valuation.m'));
-outputdir = [mfilesdir '/Results'];
-
-%Load in sentence strings
-scenarios = importdata('scenarios.txt');
-neutrals = importdata('neutral_behav.txt');
-
-
-
-
-%%
-commandwindow;
-
-%%
-%change this to 0 to fill whole screen
-DEBUG=0;
-
-%set up the screen and dimensions
-
-%list all the screens, then just pick the last one in the list (if you have
-%only 1 monitor, then it just chooses that one)
-Screen('Preference', 'SkipSyncTests', 1);
-
-screenNumber=max(Screen('Screens'));
-
-if DEBUG==1;
-    %create a rect for the screen
-    winRect=[0 0 640 480];
-    %establish the center points
-    XCENTER=320;
-    YCENTER=240;
-else
-    %change screen resolution
-%     Screen('Resolution',0,1024,768,[],32);
     
-    %this gives the x and y dimensions of our screen, in pixels.
-    [swidth, sheight] = Screen('WindowSize', screenNumber);
-    XCENTER=fix(swidth/2);
-    YCENTER=fix(sheight/2);
-    %when you leave winRect blank, it just fills the whole screen
-    winRect=[];
-end
+    prompt2(a);
 
-%open a window on that monitor. 32 refers to 32 bit color depth (millions of
-%colors), winRect will either be a 1024x768 box, or the whole screen. The
-%function returns a window "w", and a rect that represents the whole
-%screen. 
-[w, wRect]=Screen('OpenWindow', screenNumber, 0,winRect,32,2);
+    COLORS = struct;
+    COLORS.BLACK = [0 0 0];
+    COLORS.WHITE = [255 255 255];
+    COLORS.RED = [255 0 0];
+    COLORS.BLUE = [0 0 255];
+    COLORS.GREEN = [0 255 0];
+    COLORS.YELLOW = [255 255 0];
+    COLORS.rect = COLORS.GREEN;
 
-%%
-%you can set the font sizes and styles here
-Screen('TextFont', w, 'Arial');
-%Screen('TextStyle', w, 1);
-Screen('TextSize',w,25);
+    KbName('UnifyKeyNames');
 
-%% Dat Grid
-[rects,mids] = DrawRectsGrid();
-verbage = 'How much do you want to...';
-verbage2 = 'Which do you want to do more?';
+    KEYS = struct;
+    % KEYS.LEFT=KbName('leftarrow');
+    % KEYS.RIGHT=KbName('rightarrow');
+    KEYS.ONE= KbName('1!');
+    KEYS.TWO= KbName('2@');
+    KEYS.THREE= KbName('3#');
+    KEYS.FOUR= KbName('4$');
+    KEYS.FIVE= KbName('5%');
+    KEYS.SIX= KbName('6^');
+    KEYS.SEVEN= KbName('7&');
+    KEYS.EIGHT= KbName('8*');
+    KEYS.NINE= KbName('9(');
+    % KEYS.TEN= KbName('0)');
+    rangetest = cell2mat(struct2cell(KEYS));
+    KEYS.all = min(rangetest):max(rangetest);
+    % KEYS.trigger = KbName('''"');
+    KEYS.trigger = KbName('''');
 
-%% Intro
+    %%
+    [mfilesdir,~,~] = fileparts(which('ED_valuation.m'));
+    outputdir = [mfilesdir '/Results'];
 
-DrawFormattedText(w,'You are going to imagine yourself in scenarios, then rate how likely you are to engage in a behavior.\n\n You will use a scale from 1 to 9, where 1 is "Not at all likely" and 9 is "Extremely likely."\n\nPress any key to continue.','center','center',COLORS.WHITE,50,[],[],1.5);
-Screen('Flip',w);
-KbWait([],3);
+    %Load in sentence strings
+    scenarios = importdata('scenarios.txt');
+    neutrals = importdata('neutral_behav.txt');
 
-DrawFormattedText(w,'You will use the numbers along the top of the keyboard to select your rating.\n\nPress any key to continue.','center','center',COLORS.WHITE,50,[],[],1.5);
-Screen('Flip',w);
-KbWait([],3);
 
-%% fMRI synch w/trigger
-% if MRI == 1;
-%     DrawFormattedText(w,'Synching with fMRI: Waiting for trigger','center','center',COLORS.WHITE);
-%     Screen('Flip',w);
-%     
-%     scan_sec = KbTriggerWait(KEYS.trigger,xkeys);
-% else
-%     scan_sec = GetSecs();
-% end
 
-%%
-DrawFormattedText(w,'The rating task will now begin.\n\nPress any key to continue.','center','center',COLORS.WHITE,50,[],[],1.5);
-Screen('Flip',w);
-KbWait([],3);
-WaitSecs(1);
 
-num_blocks = 2;
-n_stim = 20;
-n_ed = length(eds);
-n_neutral = length(neutrals);
+    %%
+    commandwindow;
 
-for block = 1:num_blocks
-    stim_index = randperm(n_stim);
-    ed_index = randperm(n_ed);
-    neutral_index = randperm(n_neutral);
+    %%
+    %change this to 0 to fill whole screen
+    DEBUG=1;
 
-    %These are catches to make sure that there are at least as many behaviors
-    %as there are scenarios. 
-    while length(ed_index)<length(stim_index)
-        ed_index = [ed_index, randperm(n_ed)];
+    %set up the screen and dimensions
+
+    %list all the screens, then just pick the last one in the list (if you have
+    %only 1 monitor, then it just chooses that one)
+    Screen('Preference', 'SkipSyncTests', 1);
+
+    screenNumber=max(Screen('Screens'));
+
+    if DEBUG==1
+        %create a rect for the screen
+        winRect=[100 100 1124 868];
+        %establish the center points
+        XCENTER= 612;
+        YCENTER= 484;
+    else
+        %change screen resolution
+    %     Screen('Resolution',0,1024,768,[],32);
+
+        %this gives the x and y dimensions of our screen, in pixels.
+        [swidth, sheight] = Screen('WindowSize', screenNumber);
+        XCENTER=fix(swidth/2);
+        YCENTER=fix(sheight/2);
+        %when you leave winRect blank, it just fills the whole screen
+        winRect=[];
     end
 
-    while length(neutral_index)<length(stim_index)
-        neutral_index = [neutral_index, randperm(n_neutral)];
-    end
+    %open a window on that monitor. 32 refers to 32 bit color depth (millions of
+    %colors), winRect will either be a 1024x768 box, or the whole screen. The
+    %function returns a window "w", and a rect that represents the whole
+    %screen. 
+    [w, wRect]=Screen('OpenWindow', screenNumber, 0,winRect,32,2);
+
+    %%
+    %you can set the font sizes and styles here
+    Screen('TextFont', w, 'Arial');
+    %Screen('TextStyle', w, 1);
+    Screen('TextSize',w,25);
+
+    %% Dat Grid
+    [rects,mids] = DrawRectsGrid();
+    verbage = 'How much do you want to...';
+    verbage2 = 'Which do you want to do more?';
+
+    %% Intro
+
+    DrawFormattedText(w,'You are going to imagine yourself in scenarios, then rate how likely you are to engage in a behavior.\n\n You will use a scale from 1 to 9, where 1 is "Not at all likely" and 9 is "Extremely likely."\n\nPress any key to continue.','center','center',COLORS.WHITE,50,[],[],1.5);
+    Screen('Flip',w);
+    KbWait([],3);
+    %MyKbWait();
+
+    FlushEvents();
     
-    for trial = 1:n_stim
-        trialN = (block-1)+trial;
-        scenario = scenarios{stim_index(trial)};
-        ed = eds{ed_index(trial)};
-        neutral = neutrals{neutral_index(trial)};
-        joined = strcat(ed,{'                                '},neutral);
-        join = joined{1};   %Embarrassing. But functional. 
+    DrawFormattedText(w,'You will use the numbers along the top of the keyboard to select your rating.\n\nPress any key to continue.','center','center',COLORS.WHITE,50,[],[],1.5);
+    Screen('Flip',w);
+    KbWait([],3);
+    %MyKbWait();
 
-        DrawFormattedText(w,'+','center','center',COLORS.WHITE);
+    FlushEvents();
+    
+    %% fMRI synch w/trigger
+    if MRI == 1
+        DrawFormattedText(w,'Synching with fMRI: Waiting for trigger','center','center',COLORS.WHITE);
         Screen('Flip',w);
-        WaitSecs(2);
-
-        %Display scenario
-        DrawFormattedText(w,scenario,'center','center',COLORS.WHITE,50,[],[],1.5);
-        Screen('Flip',w);
-        WaitSecs(2);
-
-        DrawFormattedText(w,'+','center','center',COLORS.WHITE);
-        Screen('Flip',w);
-        WaitSecs(2);
         
-        %Probe ED behavior
-        drawRatings([],w);
-        DrawFormattedText(w,verbage,'center','center',COLORS.WHITE);
-        DrawFormattedText(w,ed,'center',(wRect(4)*.75),COLORS.WHITE);
-        Screen('Flip',w);
-
-        FlushEvents();
-        while 1
-            [keyisdown, ed_rt, keycode] = KbCheck();
-            if (keyisdown==1 && any(keycode(KEYS.all)))
-    %                     PicRating_U4ED(xy).RT = rt - rateon;
-
-                ed_rating = KbName(find(keycode));
-                ed_rating = str2double(ed_rating(1));
-
-    %                 Screen('DrawTexture',w,tpx);
-                drawRatings(keycode,w);
-                DrawFormattedText(w,verbage,'center','center',COLORS.WHITE);
-                DrawFormattedText(w,ed,'center',(wRect(4)*.75),COLORS.WHITE);
-                Screen('Flip',w);
-                WaitSecs(.25);
-                break;
-            end
-        end
-
-        %Record response here.
-        if ed_rating == 0; %Zero key is used for 10. Thus check and correct for when they press 0.
-            ed_rating = 10;
-        end
-
-        ed_rating
-
-        DrawFormattedText(w,'+','center','center',COLORS.WHITE);
-        Screen('Flip',w);
-        WaitSecs(2);
-
-       Screen('Flip',w);
-       FlushEvents();
-       WaitSecs(.25);
-
-
-       %Probe neutral behavior
-       drawRatings([],w);
-       DrawFormattedText(w,verbage,'center','center',COLORS.WHITE);
-       DrawFormattedText(w,neutral,'center',(wRect(4)*.75),COLORS.WHITE);
-       Screen('Flip',w);
-
-       FlushEvents();
-        while 1
-            [keyisdown, n_rt, keycode] = KbCheck();
-            if (keyisdown==1 && any(keycode(KEYS.all)))
-    %                     PicRating_U4ED(xy).RT = rt - rateon;
-
-                n_rating = KbName(find(keycode));
-                n_rating = str2double(n_rating(1));
-
-    %                 Screen('DrawTexture',w,tpx);
-                drawRatings(keycode,w);
-                DrawFormattedText(w,verbage,'center','center',COLORS.WHITE);
-                DrawFormattedText(w,neutral,'center',(wRect(4)*.75),COLORS.WHITE);
-                Screen('Flip',w);
-                WaitSecs(.25);
-                break;
-            end
-        end
-
-        if n_rating == 0; %Zero key is used for 10. Thus check and correct for when they press 0.
-            n_rating = 10;
-        end
-
-        DrawFormattedText(w,'+','center','center',COLORS.WHITE);
-        Screen('Flip',w);
-        WaitSecs(2);
-
-        %ED vs neutral beahvior valuation
-        drawRatings([],w);
-        DrawFormattedText(w,verbage2,'center','center',COLORS.WHITE);
-        DrawFormattedText(w,join,'center',(wRect(4)*.75),COLORS.WHITE);
-        Screen('Flip',w);
-
-        FlushEvents();
-        while 1
-            [keyisdown, v_rt, keycode] = KbCheck();
-            if (keyisdown==1 && any(keycode(KEYS.all)))
-
-                v_rating = KbName(find(keycode));
-                v_rating = str2double(v_rating(1));
-
-                drawRatings(keycode,w);
-                DrawFormattedText(w,verbage2,'center','center',COLORS.WHITE);
-                DrawFormattedText(w,join,'center',(wRect(4)*.75),COLORS.WHITE);
-                Screen('Flip',w);
-                WaitSecs(.25);
-                break;
-            end
-        end
-
-        DrawFormattedText(w,'+','center','center',COLORS.WHITE);
-        Screen('Flip',w);
-        WaitSecs(2);
-
-
-        data{trial,1}=trialN;
-        data{trial,2}=ed;
-        data{trial,3}=ed_rating;
-        data{trial,4}=ed_rt;
-        data{trial,5}=neutral;
-        data{trial,6}=n_rating;
-        data{trial,7}=n_rt;
-        data{trial,8}=v_rating;
-        data{trial,9}=v_rt;
-
-
+        scan_sec = GetSecs(); %MyKbWait(KEYS.trigger); %KbTriggerWait(KEYS.trigger);
+    else
+        scan_sec = GetSecs();
     end
+
+    %%
+    DrawFormattedText(w,'The rating task will now begin.\n\nPress any key to continue.','center','center',COLORS.WHITE,50,[],[],1.5);
+    Screen('Flip',w);
+    KbWait([],3);
+    %MyKbWait();
+    WaitSecs(1);
+
+    num_blocks = 1;
+    n_stim = 2;
+
+    % 20160611cdt
+    eds = eds;
+
+    n_ed = length(eds);
+    n_neutral = length(neutrals);
+
+    % 20160611cdt
+    usingKeyboard = true;
+
+    for block = 1:num_blocks
+        stim_index = randperm(n_stim);
+        ed_index = randperm(n_ed);
+        neutral_index = randperm(n_neutral);
+
+        %These are catches to make sure that there are at least as many behaviors
+        %as there are scenarios. 
+        while length(ed_index)<length(stim_index)
+            ed_index = [ed_index, randperm(n_ed)];
+        end
+
+        while length(neutral_index)<length(stim_index)
+            neutral_index = [neutral_index, randperm(n_neutral)];
+        end
+
+        for trial = 1:n_stim
+            trialN = (block-1)+trial;
+            scenario = scenarios{stim_index(trial)};
+            ed = eds{ed_index(trial)};
+            neutral = neutrals{neutral_index(trial)};
+            joined = strcat(ed,{'                                '},neutral);
+            join = joined{1};   %Embarrassing. But functional. 
+
+            % 20160611cdt
+            ed_rating = 0;
+            ed_rt = 0;
+            n_rating = 0;
+            n_rt = 0;
+            v_rating = 0;
+            v_rt = 0;
+            STIM.rate_dur = 2;
+
+            ShowFixation(w, 2);
+
+            %Display scenario
+            DrawFormattedText(w,scenario,'center','center',COLORS.WHITE,50,[],[],1.5);
+            Screen('Flip',w);
+            WaitSecs(2);
+
+            %Probe ED behavior
+            [ed_rating, ed_rt] = ShowStim(w, verbage, ed, STIM.rate_dur);
+
+            %Record response here.
+            if ed_rating == 0; %Zero key is used for 10. Thus check and correct for when they press 0.
+                ed_rating = 10;
+            end
+
+            ShowFixation(w, 2);
+
+            % ?? 20160512cdt
+            Screen('Flip',w);
+            FlushEvents();
+            WaitSecs(.25);
+
+            %Probe neutral behavior
+            [n_rating, n_rt] = ShowStim(w, verbage, neutral, STIM.rate_dur);
+
+            if n_rating == 0; %Zero key is used for 10. Thus check and correct for when they press 0.
+                n_rating = 10;
+            end
+
+            ShowFixation(w, 2);
+
+            %ED vs neutral beahvior valuation
+            [v_rating, v_rt] = ShowStim(w, verbage2, join, STIM.rate_dur);
+
+            ShowFixation(w, 2);
+
+            data{trial,1}=trialN;
+            data{trial,2}=ed;
+            data{trial,3}=ed_rating;
+            data{trial,4}=ed_rt;
+            data{trial,5}=neutral;
+            data{trial,6}=n_rating;
+            data{trial,7}=n_rt;
+            data{trial,8}=v_rating;
+            data{trial,9}=v_rt;
+
+        end
         %     %Take a break every 20 pics.
         Screen('Flip',w);
         DrawFormattedText(w,'Press any key when you are ready to continue','center','center',COLORS.WHITE);
         Screen('Flip',w);
         KbWait([],3);
+        %MyKbWait();
+    end
+    
+    filename = ['ED_valuation' '_sub' answer{1} '.mat'];
+    xls_savename = ['ED_valuation' '_sub' answer{1} '.xls'];
+    cd(outputdir);
+    save(filename,'data');
+    xlswrite(xls_savename, data);
+
+    Screen('Flip',w);
+    WaitSecs(.5);
+
+    %% Sort & Save List of Foods.
+
+    DrawFormattedText(w,'That concludes this task. The assessor will be with you soon.','center','center',COLORS.WHITE);
+    Screen('Flip', w);
+    WaitSecs(4);
+
+    sca
+
+    end
+
+
+%%
+ function [rating, rt] = ShowStim(w, text1, text2, duration)
+    global KEYS COLORS wRect usingKeyboard;
+    
+    drawRatings([],w);
+    DrawFormattedText(w,text1,'center','center',COLORS.WHITE);
+    DrawFormattedText(w,text2,'center',(wRect(4)*.75),COLORS.WHITE);
+    rateon = Screen('Flip',w);
+    
+    FlushEvents();
+    telap = 0;
+    rating = 5;
+    rt = NaN;
+
+    while telap < duration
+        telap = GetSecs() - rateon;
+
+        if (usingKeyboard)
+            [keyisdown, rt, keycode] = KbCheck();
+            if (keyisdown==1 && any(keycode(KEYS.all)))
+                rating = KbName(find(keycode));
+                rating = str2double(rating(1));
+                drawRatings(keycode,w);
+                DrawFormattedText(w,text1,'center','center',COLORS.WHITE);
+                DrawFormattedText(w,text2,'center',(wRect(4)*.75),COLORS.WHITE);
+                Screen('Flip',w);
+                WaitSecs(.25);
+                break;
+            end
+        else
+            keycode = zeros();
+            [rating, rt] = GetJoystickValue();
+            keycode(rating + 48) = true;
+            drawRatings(keycode);
+            DrawFormattedText(w,text1,'center','center',COLORS.WHITE);
+            DrawFormattedText(w,text2,'center',(wRect(4)*.75),COLORS.WHITE);
+            Screen('Flip',w);
+            WaitSecs(0.10);
+        end
+    end
 end
-filename = ['ED_valuation' '_sub' answer{1} '.mat'];
-cd(outputdir);
-save(filename,'data');
-
-Screen('Flip',w);
-WaitSecs(.5);
 
 
-%% Sort & Save List of Foods.
-
-
-DrawFormattedText(w,'That concludes this task. The assessor will be with you soon.','center','center',COLORS.WHITE);
-Screen('Flip', w);
-WaitSecs(4);
-
-sca
-
+%%
+function key_time = MyKbWait(varargin)
+    global KEYS;
+    test_key = KEYS.all;
+    if nargin > 0
+        test_key = varargin{1};
+    end
+    FlushEvents();
+    while 1
+        [pracDown, key_time, pracCode] = KbCheck();
+        if pracDown == 1 && any(pracCode(test_key))
+            break
+        end
+    end
 end
 
 
+%%
+function ShowFixation(w,duration)
+    global COLORS;
+    DrawFormattedText(w,'+','center','center',COLORS.WHITE);
+    Screen('Flip',w);
+    WaitSecs(duration);
+end
+
+
+%%
+function [val, rt] = GetJoystickValue()
+    joystickCenter = 32767;
+    step = 6000;
+
+    [x, y, z, buttons] = WinJoystickMex(0);
+    val = floor (x / step);
+    val = max(1, val);
+    val = min(9, val);
+    rt = 0;
+end
+
+
+%%
 function [ rects,mids ] = DrawRectsGrid(varargin)
 %DrawRectGrid:  Builds a grid of squares with gaps in between.
 
@@ -359,91 +389,85 @@ mids = [rects(1,:)+square_side/2; rects(2,:)+square_side/2+5];
 
 end
 
+
 %%
 function drawRatings(varargin)
 
-global w KEYS COLORS rects mids
+    global w KEYS COLORS rects mids;
 
-colors=repmat(COLORS.WHITE',1,9);
-% rects=horzcat(allRects.rate1rect',allRects.rate2rect',allRects.rate3rect',allRects.rate4rect');
+    colors=repmat(COLORS.WHITE',1,9);
+    % rects=horzcat(allRects.rate1rect',allRects.rate2rect',allRects.rate3rect',allRects.rate4rect');
 
-%Needs to feed in "code" from KbCheck, to show which key was chosen.
-if nargin >= 1 && ~isempty(varargin{1})
-    response=varargin{1};
-    
-    key=find(response);
-    if length(key)>1
-        key=key(1);
-    end;
-    
-    switch key
-        
-        case {KEYS.ONE}
-            choice=1;
-        case {KEYS.TWO}
-            choice=2;
-        case {KEYS.THREE}
-            choice=3;
-        case {KEYS.FOUR}
-            choice=4;
-        case {KEYS.FIVE}
-            choice=5;
-        case {KEYS.SIX}
-            choice=6;
-        case {KEYS.SEVEN}
-            choice=7;
-        case {KEYS.EIGHT}
-            choice=8;
-        case {KEYS.NINE}
-            choice=9;
-%         case {KEYS.TEN}
-%             choice = 10;
+    %Needs to feed in "code" from KbCheck, to show which key was chosen.
+    choice = 0;
+    if nargin >= 1 && ~isempty(varargin{1})
+        response=varargin{1};
+
+        key=find(response);
+        if length(key)>1
+            key=key(1);
+        end;
+
+        switch key
+
+            case {KEYS.ONE}
+                choice=1;
+            case {KEYS.TWO}
+                choice=2;
+            case {KEYS.THREE}
+                choice=3;
+            case {KEYS.FOUR}
+                choice=4;
+            case {KEYS.FIVE}
+                choice=5;
+            case {KEYS.SIX}
+                choice=6;
+            case {KEYS.SEVEN}
+                choice=7;
+            case {KEYS.EIGHT}
+                choice=8;
+            case {KEYS.NINE}
+                choice=9;
+    %         case {KEYS.TEN}
+    %             choice = 10;
+        end
+
+        if exist('choice','var')
+            colors(:,choice)=COLORS.GREEN';
+        end
     end
-    
-    if exist('choice','var')
-        
-        
-        colors(:,choice)=COLORS.GREEN';
-        
+
+    if nargin>=2
+        window=varargin{2};
+    else
+       window=w;
     end
-end
 
-if nargin>=2
-    
-    window=varargin{2};
-    
-else
-    
-    window=w;
-    
-end
-   
+    Screen('TextFont', window, 'Arial');
+    Screen('TextStyle', window, 1);
+    oldSize = Screen('TextSize',window,35);
 
-Screen('TextFont', window, 'Arial');
-Screen('TextStyle', window, 1);
-oldSize = Screen('TextSize',window,35);
+    % Screen('TextFont', w2, 'Arial');
+    % Screen('TextStyle', w2, 1)
+    % Screen('TextSize',w2,60);
 
-% Screen('TextFont', w2, 'Arial');
-% Screen('TextStyle', w2, 1)
-% Screen('TextSize',w2,60);
+    %draw all the squares
+    Screen('FrameRect',window,colors,rects,1);
 
+    % Screen('FrameRect',w2,colors,rects,1);
 
+    %draw the text (1-10)
+    % 20160512cdt add green color to selected number
+    for n = 1:9;
+        numnum = sprintf('%d',n);
+        color = COLORS.WHITE;
+        if n == choice
+            color = COLORS.GREEN;
+        end
+        CenterTextOnPoint(window,numnum,mids(1,n),mids(2,n),color);
+    end
 
-%draw all the squares
-Screen('FrameRect',window,colors,rects,1);
-
-
-% Screen('FrameRect',w2,colors,rects,1);
-
-
-%draw the text (1-10)
-for n = 1:9;
-    numnum = sprintf('%d',n);
-    CenterTextOnPoint(window,numnum,mids(1,n),mids(2,n),COLORS.WHITE);
-end
-
-
-Screen('TextSize',window,oldSize);
+    Screen('TextSize',window,oldSize);
 
 end
 
@@ -770,4 +794,3 @@ end
 
 return;
 end
-
